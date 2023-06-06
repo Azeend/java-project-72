@@ -22,7 +22,13 @@ public class App {
         String port = System.getenv().getOrDefault("PORT", "8080");
         return Integer.valueOf(port);
     }
+    private static String getMode() {
+        return System.getenv().getOrDefault("APP_ENV", "development");
+    }
 
+    private static boolean isProduction() {
+        return getMode().equals("production");
+    }
 
     private static void addRoutes(Javalin app) {
         app.get("/", RootController.welcome);
@@ -40,7 +46,10 @@ public class App {
     }
     public static Javalin getApp() {
         Javalin app = Javalin.create(config -> {
-            config.plugins.enableDevLogging();
+            if (!isProduction()) {
+                config.plugins.enableDevLogging();
+            }
+
             JavalinThymeleaf.init(getTemplateEngine());
         });
 

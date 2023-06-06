@@ -1,9 +1,18 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <migration xmlns="http://ebean-orm.github.io/xml/ns/dbmigration">
     <changeSet type="apply">
-        <createTable name="url" pkName="pk_url">
+        <createTable name="url">
             <column name="id" type="bigint" primaryKey="true"/>
             <column name="name" type="varchar"/>
+            <column name="created_at" type="timestamp" notnull="true"/>
+        </createTable>
+        <createTable name="url_check">
+            <column name="id" type="bigint" primaryKey="true"/>
+            <column name="status_code" type="integer" notnull="true"/>
+            <column name="title" type="varchar"/>
+            <column name="h1" type="varchar"/>
+            <column name="description" type="clob"/>
+            <column name="url_id" type="bigint" references="url.id"/>
             <column name="created_at" type="timestamp" notnull="true"/>
         </createTable>
     </changeSet>

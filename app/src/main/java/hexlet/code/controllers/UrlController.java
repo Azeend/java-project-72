@@ -54,11 +54,11 @@ public final class UrlController {
             URL url = new URL(Objects.requireNonNull(ctx.formParam("url")));
 
             String normalizedUrl = url.getProtocol() + "://" + url.getAuthority();
-            boolean existedUrl = new QUrl()
+            boolean isUrlExist = new QUrl()
                     .name.iequalTo(normalizedUrl)
                     .exists();
 
-            if (existedUrl) {
+            if (isUrlExist) {
                 ctx.sessionAttribute("flash", "Страница уже существует");
                 ctx.sessionAttribute("flash-type", "info");
                 ctx.redirect("/urls");
@@ -75,7 +75,11 @@ public final class UrlController {
         }
     };
     public static Handler showUrl = ctx -> {
-        int id = ctx.pathParamAsClass("id", Integer.class).getOrDefault(null);
+        var id = ctx.pathParamAsClass("id", Long.class).getOrDefault(null);
+
+        if (id == null) {
+            throw new NotFoundResponse();
+        }
 
         Url url = new QUrl()
                 .id.equalTo(id)
@@ -89,7 +93,11 @@ public final class UrlController {
         ctx.render("urls/show.html");
     };
     public static Handler checkUrl = ctx -> {
-        long id = ctx.pathParamAsClass("id", Long.class).getOrDefault(null);
+        var id = ctx.pathParamAsClass("id", Long.class).getOrDefault(null);
+
+        if (id == null) {
+            throw new NotFoundResponse();
+        }
 
         Url url = new QUrl()
                 .id.equalTo(id)
@@ -110,12 +118,12 @@ public final class UrlController {
 
             String title = body.title();
 
-            Element h1 = body.selectFirst("h1");
-            Element description = body.selectFirst("meta[name=description]");
-            String head1 = (h1 != null) ? h1.text() : "";
-            String description1 = (description != null) ? description.attr("content") : "";
+            Element h1Element = body.selectFirst("h1");
+            Element descriptionElement = body.selectFirst("meta[name=description]");
+            String h1 = (h1Element != null) ? h1Element.text() : "";
+            String description = (descriptionElement != null) ? descriptionElement.attr("content") : "";
 
-            UrlCheck urlCheck = new UrlCheck(description1, title, head1, statusCode, url);
+            UrlCheck urlCheck = new UrlCheck(description, title, h1, statusCode, url);
             urlCheck.save();
 
             ctx.sessionAttribute("flash", "Страница успешно проверена");
